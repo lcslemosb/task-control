@@ -856,17 +856,48 @@ async function loadAll() {
     userDoc('timeEntries').get(),
     userDoc('payments').get(),
   ]);
+
+  // ── Migração automática do localStorage (primeira vez que o usuário loga) ──
+  const isFirstLogin = !cs.exists && !ts.exists;
+  if (isFirstLogin) {
+    const lsC = JSON.parse(localStorage.getItem('ex_clients')      || 'null');
+    const lsT = JSON.parse(localStorage.getItem('ex_tasks')        || 'null');
+    const lsE = JSON.parse(localStorage.getItem('ex_time_entries') || 'null');
+    const lsP = JSON.parse(localStorage.getItem('ex_payments')     || 'null');
+    if (lsC && lsC.length > 0) {
+      allClients     = lsC;
+      allTasks       = lsT || [];
+      allTimeEntries = lsE || [];
+      _payments      = lsP || {};
+      await Promise.all([
+        userDoc('clients').set({ v: allClients }),
+        userDoc('tasks').set({ v: allTasks }),
+        userDoc('timeEntries').set({ v: allTimeEntries }),
+        userDoc('payments').set({ v: _payments }),
+      ]);
+      console.info('[TaskControl] Dados migrados do localStorage para o Firestore.');
+      // Marca migração concluída para não repetir
+      localStorage.setItem('tc_migrated', '1');
+      // Pula o restante do loadAll (dados já estão em memória)
+      return runMigrations();
+    }
+  }
+
   allClients     = cs.exists  ? cs.data().v  : (() => { const s = seedClients(); saveClients(); return s; })();
   allTasks       = ts.exists  ? ts.data().v  : [];
   allTimeEntries = tes.exists ? tes.data().v : [];
   _payments      = ps.exists  ? ps.data().v  : {};
 
-  // Migração: remove "Agência" da lista de clientes caso ainda exista do seed antigo
+  runMigrations();
+}
+
+function runMigrations() {
+  // Remove "Agência" da lista de clientes caso ainda exista do seed antigo
   const before = allClients.length;
   allClients = allClients.filter(c => c.name.trim().toLowerCase() !== 'agência' && c.name.trim().toLowerCase() !== 'agencia');
   if (allClients.length !== before) saveClients();
 
-  // Migração: backfill completedAt para tarefas concluídas sem timestamp
+  // Backfill completedAt para tarefas concluídas sem timestamp
   let needSave = false;
   allTasks.forEach(t => {
     if (isDone(t.status) && !t.completedAt) {
