@@ -42,7 +42,7 @@
     #auth-overlay { background:var(--bg); z-index:99999; flex-direction:column; }
     .auth-logo { height:56px; width:auto; margin-bottom:28px; opacity:.9; }
     .auth-box { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:36px 40px; width:380px; max-width:94vw; }
-    .auth-box h2 { font-family:'Cormorant Garamond',Georgia,serif; font-size:1.6rem; color:var(--ouro); text-align:center; margin-bottom:6px; letter-spacing:.04em; }
+    .auth-box h2 { font-family:'Inter',system-ui,sans-serif; font-size:1.4rem; font-weight:700; color:var(--ouro); text-align:center; margin-bottom:6px; letter-spacing:.02em; }
     .auth-sub { text-align:center; color:var(--muted); font-size:.78rem; margin-bottom:28px; letter-spacing:.04em; }
     .auth-error { color:var(--urgent); font-size:.78rem; margin-bottom:12px; min-height:18px; text-align:center; }
     .auth-divider { display:flex; align-items:center; gap:10px; margin:18px 0; }
@@ -58,7 +58,7 @@
     .btn-logout { background:transparent; border:1px solid var(--border); border-radius:var(--radius); color:var(--muted); cursor:pointer; font-family:inherit; font-size:.74rem; padding:5px 10px; transition:all .2s; }
     .btn-logout:hover { border-color:var(--urgent); color:var(--urgent); }
     .modal-box { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:32px; width:440px; max-width:96vw; max-height:92vh; overflow-y:auto; }
-    .modal-box h2 { font-family:'Cormorant Garamond',Georgia,serif; font-size:1.5rem; font-weight:600; color:var(--offwhite); margin-bottom:22px; letter-spacing:.04em; }
+    .modal-box h2 { font-family:'Inter',system-ui,sans-serif; font-size:1.25rem; font-weight:700; color:var(--offwhite); margin-bottom:22px; letter-spacing:.01em; }
     .field { margin-bottom:15px; }
     .field label { display:block; font-size:.68rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:7px; }
     .field input, .field select, .field textarea { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:11px 14px; color:var(--text); font-family:inherit; font-size:.88rem; outline:none; transition:border-color .2s; appearance:none; }
@@ -101,7 +101,7 @@
     .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:1px; margin-bottom:28px; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
     .card { background:var(--surface); padding:18px 20px; }
     .card .label { font-size:.65rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; }
-    .card .value { font-family:'Cormorant Garamond',Georgia,serif; font-size:2.2rem; font-weight:600; color:var(--offwhite); line-height:1; }
+    .card .value { font-family:'Inter',system-ui,sans-serif; font-size:2rem; font-weight:700; color:var(--offwhite); line-height:1; }
     .card.c-total .value { color:var(--ouro); }
     .card.c-urgent .value { color:var(--urgent); }
     .card.c-high .value { color:var(--high); }
@@ -136,7 +136,7 @@
     .client-section { margin-bottom:16px; }
     .section-wrapper { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
     .client-header { display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
-    .client-name { font-family:'Cormorant Garamond',Georgia,serif; font-size:1rem; font-weight:600; letter-spacing:.04em; color:var(--offwhite); }
+    .client-name { font-family:'Inter',system-ui,sans-serif; font-size:1rem; font-weight:600; letter-spacing:.04em; color:var(--offwhite); }
     .client-badge { font-size:.68rem; color:var(--muted); letter-spacing:.03em; }
     .client-value-badge { font-size:.68rem; color:var(--ouro); letter-spacing:.03em; }
     .add-task-btn { margin-left:auto; background:transparent; border:1px solid var(--border); border-radius:4px; color:var(--muted); cursor:pointer; font-family:inherit; font-size:.72rem; padding:4px 10px; transition:all .2s; }
@@ -188,7 +188,7 @@
     .queue-item.q-overdue { border-left-color:var(--urgent); }
     .queue-item.q-urgent  { border-left-color:var(--high); }
     .queue-item.q-normal  { border-left-color:var(--normal); }
-    .q-num { font-family:'Cormorant Garamond',Georgia,serif; font-size:2rem; font-weight:600; color:var(--ouro); line-height:1; text-align:center; }
+    .q-num { font-family:'Inter',system-ui,sans-serif; font-size:2rem; font-weight:600; color:var(--ouro); line-height:1; text-align:center; }
     .q-body { min-width:0; }
     .q-name { margin-bottom:5px; }
     .q-name a { color:var(--text); text-decoration:none; font-size:.88rem; font-weight:500; line-height:1.3; cursor:pointer; }
@@ -214,12 +214,12 @@
     /* ── CHART CARDS ── */
     .charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
     .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; }
-    .chart-card h3 { font-family:'Cormorant Garamond',Georgia,serif; font-size:1.05rem; font-weight:600; color:var(--offwhite); letter-spacing:.04em; margin-bottom:4px; }
+    .chart-card h3 { font-family:'Inter',system-ui,sans-serif; font-size:1.05rem; font-weight:600; color:var(--offwhite); letter-spacing:.04em; margin-bottom:4px; }
     .chart-card .chart-sub { font-size:.72rem; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; margin-bottom:20px; }
     .chart-wrap canvas { max-height:280px; }
     .client-stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-bottom:20px; }
     .client-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; }
-    .client-stat-card .csn { font-family:'Cormorant Garamond',Georgia,serif; font-size:.95rem; font-weight:600; color:var(--offwhite); margin-bottom:10px; letter-spacing:.03em; }
+    .client-stat-card .csn { font-family:'Inter',system-ui,sans-serif; font-size:.95rem; font-weight:600; color:var(--offwhite); margin-bottom:10px; letter-spacing:.03em; }
     .stat-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
     .stat-label { font-size:.7rem; color:var(--muted); letter-spacing:.04em; }
     .stat-val { font-size:.82rem; font-weight:600; color:var(--text); }
@@ -231,11 +231,11 @@
 
     /* ── FINANCEIRO TAB ── */
     .fin-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
-    .fin-header-title { font-family:'Cormorant Garamond',Georgia,serif; font-size:1.35rem; font-weight:600; color:var(--offwhite); letter-spacing:.05em; }
+    .fin-header-title { font-family:'Inter',system-ui,sans-serif; font-size:1.35rem; font-weight:600; color:var(--offwhite); letter-spacing:.05em; }
     .fin-summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1px; margin-bottom:28px; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
     .fin-card { background:var(--surface); padding:18px 20px; }
     .fin-card .label { font-size:.65rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; }
-    .fin-card .value { font-family:'Cormorant Garamond',Georgia,serif; font-size:1.9rem; font-weight:600; color:var(--offwhite); line-height:1; }
+    .fin-card .value { font-family:'Inter',system-ui,sans-serif; font-size:1.9rem; font-weight:600; color:var(--offwhite); line-height:1; }
     .fin-card.fc-mrr .value   { color:var(--ouro); }
     .fin-card.fc-recv .value  { color:var(--done); }
     .fin-card.fc-pend .value  { color:var(--high); }
@@ -244,7 +244,7 @@
     .client-cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
     .client-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
     .client-card-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; }
-    .client-card-name { font-family:'Cormorant Garamond',Georgia,serif; font-size:1.05rem; font-weight:600; color:var(--offwhite); letter-spacing:.03em; }
+    .client-card-name { font-family:'Inter',system-ui,sans-serif; font-size:1.05rem; font-weight:600; color:var(--offwhite); letter-spacing:.03em; }
     .client-card-btns { display:flex; gap:5px; flex-shrink:0; }
     .btn-icon { background:transparent; border:1px solid var(--border); border-radius:4px; color:var(--muted); cursor:pointer; font-size:.75rem; padding:3px 8px; transition:all .15s; }
     .btn-icon:hover { border-color:var(--ouro); color:var(--ouro); }
@@ -269,9 +269,9 @@
     /* ── PAYMENT NOTIFICATION ── */
     .pn-box { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:32px 28px; width:360px; max-width:96vw; text-align:center; }
     .pn-icon { font-size:2.2rem; margin-bottom:12px; }
-    .pn-client-name { font-family:'Cormorant Garamond',Georgia,serif; font-size:1.5rem; font-weight:600; color:var(--offwhite); margin-bottom:4px; }
+    .pn-client-name { font-family:'Inter',system-ui,sans-serif; font-size:1.5rem; font-weight:600; color:var(--offwhite); margin-bottom:4px; }
     .pn-month-lbl { font-size:.78rem; color:var(--muted); margin-bottom:4px; }
-    .pn-amount { font-family:'Cormorant Garamond',Georgia,serif; font-size:2.4rem; color:var(--ouro); font-weight:600; margin:14px 0; }
+    .pn-amount { font-family:'Inter',system-ui,sans-serif; font-size:2.4rem; color:var(--ouro); font-weight:600; margin:14px 0; }
     .pn-sub { font-size:.78rem; color:var(--muted); margin-bottom:22px; }
     .pn-btns { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
     .btn-pn { border:1px solid transparent; border-radius:var(--radius); padding:11px 4px; font-family:inherit; font-size:.8rem; font-weight:600; cursor:pointer; transition:all .2s; }
@@ -354,7 +354,11 @@
     </div>
     <div class="field">
       <label>Título</label>
-      <input type="text" id="tm-name" placeholder="Descreva a tarefa..." />
+      <input type="text" id="tm-name" placeholder="Descreva a tarefa..." autocomplete="off" />
+    </div>
+    <div class="field">
+      <label>Descrição <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+      <textarea id="tm-desc" placeholder="Detalhes, links, observações..." style="min-height:64px;resize:vertical"></textarea>
     </div>
     <div class="field" id="tm-client-row">
       <label>Cliente</label>
@@ -363,7 +367,7 @@
     <div class="field-row">
       <div class="field" style="margin-bottom:0">
         <label>Tipo</label>
-        <input type="text" id="tm-type" placeholder="Design, Conteúdo..." list="type-list" />
+        <input type="text" id="tm-type" placeholder="Design, Conteúdo..." list="type-list" autocomplete="off" />
         <datalist id="type-list">
           <option value="Design">
           <option value="Conteúdo">
@@ -614,7 +618,7 @@
   <div class="tab-panel" id="tab-agencia">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
-        <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.35rem;font-weight:600;color:var(--offwhite);letter-spacing:.05em">Agência</div>
+        <div style="font-family:'Inter',system-ui,sans-serif;font-size:1.35rem;font-weight:600;color:var(--offwhite);letter-spacing:.05em">Agência</div>
         <div style="font-size:.72rem;color:var(--muted);margin-top:3px" id="ag-meta">—</div>
       </div>
       <button class="btn-new" id="new-agency-task-btn">+ Nova Tarefa</button>
@@ -656,7 +660,7 @@
   <div class="tab-panel" id="tab-pessoal">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
-        <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.35rem;font-weight:600;color:var(--offwhite);letter-spacing:.05em">Pessoal</div>
+        <div style="font-family:'Inter',system-ui,sans-serif;font-size:1.35rem;font-weight:600;color:var(--offwhite);letter-spacing:.05em">Pessoal</div>
         <div style="font-size:.72rem;color:var(--muted);margin-top:3px" id="ps-meta">—</div>
       </div>
       <button class="btn-new" id="new-personal-task-btn">+ Nova Tarefa</button>
@@ -778,7 +782,7 @@
   <div class="tab-panel" id="tab-fila">
     <div class="queue-header">
       <div>
-        <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.35rem;font-weight:600;color:var(--offwhite);letter-spacing:.05em">Fila de Ações</div>
+        <div style="font-family:'Inter',system-ui,sans-serif;font-size:1.35rem;font-weight:600;color:var(--offwhite);letter-spacing:.05em">Fila de Ações</div>
         <div class="queue-meta" id="q-meta">—</div>
       </div>
       <button class="btn-copy-plan" id="copy-plan-btn">Copiar plano</button>
@@ -1006,8 +1010,9 @@ function taskRow(t, showClient = false) {
     : `<td style="color:var(--muted);font-size:.78rem">—</td>`;
   const timerCell = doneRow ? `<td></td>` :
     `<td class="timer-cell"><button class="btn-timer" data-id="${t.id}">▶</button><span class="timer-display" data-id="${t.id}"></span></td>`;
+  const descIcon = t.desc ? `<span title="${t.desc.replace(/"/g,'&quot;')}" style="margin-left:5px;color:var(--muted);cursor:default;font-size:.75rem">📝</span>` : '';
   return `<tr class="task-row${overdue?' overdue':''}${today?' today':''}${doneRow?' done-row':''}">
-    <td class="task-name"><a data-edit="${t.id}">${t.name}</a></td>
+    <td class="task-name"><a data-edit="${t.id}">${t.name}</a>${descIcon}</td>
     ${clientCol}
     <td>${statusSelect(t)}</td>
     <td>${priorityBadge(t.priority)}</td>
@@ -1061,6 +1066,7 @@ function openTaskModal(taskId, defaultCategory) {
     document.getElementById('tm-title').textContent    = 'Editar Tarefa';
     document.getElementById('tm-category').value       = cat;
     document.getElementById('tm-name').value           = t.name;
+    document.getElementById('tm-desc').value           = t.desc || '';
     document.getElementById('tm-client').value         = t.clientId || '';
     document.getElementById('tm-type').value           = t.taskType || '';
     document.getElementById('tm-priority').value       = t.priority || '';
@@ -1074,6 +1080,7 @@ function openTaskModal(taskId, defaultCategory) {
     document.getElementById('tm-title').textContent    = 'Nova Tarefa';
     document.getElementById('tm-category').value       = cat;
     document.getElementById('tm-name').value           = '';
+    document.getElementById('tm-desc').value           = '';
     document.getElementById('tm-type').value           = '';
     document.getElementById('tm-priority').value       = '';
     document.getElementById('tm-status').value         = 'A fazer';
@@ -1096,6 +1103,7 @@ function closeTaskModal() {
 
 function saveTask() {
   const name     = document.getElementById('tm-name').value.trim();
+  const desc     = document.getElementById('tm-desc').value.trim() || null;
   const category = document.getElementById('tm-category').value;
   const isClient = category === 'client';
   const clientId = isClient ? document.getElementById('tm-client').value : null;
@@ -1116,12 +1124,13 @@ function saveTask() {
       const completedAt = nowDone && !wasDone ? Date.now()
                         : !nowDone            ? undefined
                         : allTasks[idx].completedAt;
-      Object.assign(allTasks[idx], { name, category, clientId, taskType, priority, status, dueDate });
+      Object.assign(allTasks[idx], { name, desc, category, clientId, taskType, priority, status, dueDate });
+      if (!desc) delete allTasks[idx].desc;
       if (completedAt) allTasks[idx].completedAt = completedAt;
       else             delete allTasks[idx].completedAt;
     }
   } else {
-    const newTask = { id:uid(), name, category, clientId, taskType, priority, status, dueDate, createdAt:Date.now() };
+    const newTask = { id:uid(), name, ...(desc && {desc}), category, clientId, taskType, priority, status, dueDate, createdAt:Date.now() };
     if (isDone(status)) newTask.completedAt = Date.now();
     allTasks.push(newTask);
   }
