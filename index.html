@@ -211,6 +211,22 @@
     .timer-cell { white-space:nowrap; }
     @keyframes pulse-border { 0%,100%{opacity:1} 50%{opacity:.5} }
 
+    /* ── PiP TIMER ── */
+    .pip-timer { position:fixed; bottom:28px; right:28px; z-index:9000; background:var(--surface); border:1px solid rgba(74,158,114,.5); border-radius:16px; padding:18px 22px 16px; width:256px; box-shadow:0 12px 40px rgba(0,0,0,.6),0 0 0 1px rgba(74,158,114,.12); user-select:none; }
+    .pip-timer.hidden { display:none; }
+    .pip-drag { display:flex; align-items:center; gap:8px; cursor:grab; margin-bottom:12px; }
+    .pip-drag:active { cursor:grabbing; }
+    .pip-dot { width:9px; height:9px; border-radius:50%; background:var(--done); flex-shrink:0; animation:pip-pulse 1.3s ease-in-out infinite; }
+    @keyframes pip-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.45;transform:scale(.75)} }
+    .pip-running-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--done); }
+    .pip-close { margin-left:auto; background:none; border:none; color:var(--muted); cursor:pointer; font-size:.9rem; line-height:1; padding:0; transition:color .15s; }
+    .pip-close:hover { color:var(--text); }
+    .pip-task { font-size:.92rem; font-weight:600; color:var(--offwhite); margin-bottom:3px; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .pip-client { font-size:.72rem; color:var(--muted); margin-bottom:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .pip-clock { font-size:2.1rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--offwhite); letter-spacing:.05em; margin-bottom:16px; line-height:1; }
+    .pip-stop-btn { width:100%; background:rgba(217,89,106,.1); border:1px solid rgba(217,89,106,.3); border-radius:8px; color:var(--urgent); cursor:pointer; font-family:inherit; font-size:.8rem; font-weight:600; padding:10px; transition:all .2s; }
+    .pip-stop-btn:hover { background:rgba(217,89,106,.2); border-color:var(--urgent); }
+
     /* ── CHART CARDS ── */
     .charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
     .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; }
@@ -873,6 +889,19 @@
 
 </main>
 
+<!-- ══ PiP TIMER WIDGET ══ -->
+<div id="pip-timer" class="pip-timer hidden">
+  <div class="pip-drag" id="pip-handle">
+    <span class="pip-dot"></span>
+    <span class="pip-running-lbl">Em execução</span>
+    <button class="pip-close" id="pip-collapse" title="Minimizar">—</button>
+  </div>
+  <div class="pip-task" id="pip-task-name">—</div>
+  <div class="pip-client" id="pip-client-name"></div>
+  <div class="pip-clock" id="pip-clock">00:00</div>
+  <button class="pip-stop-btn" id="pip-stop-btn">⏹ Parar contagem</button>
+</div>
+
 <script>
 // ════════════════════════════════════════════════════════
 //  FIREBASE — cole aqui o config do seu projeto
@@ -1481,8 +1510,17 @@ function applyTimerState() {
 }
 
 function tickTimer() {
+  const elapsed = fmtElapsed(Date.now() - activeTimer.startMs);
   document.querySelectorAll(`.timer-display[data-id="${activeTimer.taskId}"]`)
-    .forEach(d => { d.style.display='inline'; d.textContent=fmtElapsed(Date.now()-activeTimer.startMs); });
+    .forEach(d => { d.style.display='inline'; d.textContent=elapsed; });
+  // Update fallback widget clock
+  const pipClock = document.getElementById('pip-clock');
+  if (pipClock) pipClock.textContent = elapsed;
+  // Update Document PiP window clock
+  if (pipDocWindow) {
+    const extClock = pipDocWindow.document.getElementById('pip-ext-clock');
+    if (extClock) extClock.textContent = elapsed;
+  }
 }
 
 function startTimer(taskId) {
@@ -1490,6 +1528,7 @@ function startTimer(taskId) {
   if (activeTimer.taskId) stopTimer(false);
   activeTimer = { taskId, startMs: Date.now(), iv: setInterval(tickTimer,1000) };
   applyTimerState();
+  pipOpen(taskId);
 }
 
 function stopTimer(save=true) {
@@ -1502,11 +1541,128 @@ function stopTimer(save=true) {
   }
   activeTimer = { taskId:null, startMs:null, iv:null };
   applyTimerState();
+  pipClose();
 }
 
 document.addEventListener('click', e => {
   const btn = e.target.closest('.btn-timer');
   if (btn) startTimer(btn.dataset.id);
+});
+
+// ════════════════════════════════════════════════════════
+//  PiP TIMER — Document Picture-in-Picture + fallback
+// ════════════════════════════════════════════════════════
+let pipDocWindow = null; // Document PiP window reference
+
+const PIP_CSS = `
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:#0F1C2E;color:#F2F0EA;padding:22px 20px 18px;height:100vh;display:flex;flex-direction:column;justify-content:space-between}
+  .ph{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+  .dot{width:10px;height:10px;border-radius:50%;background:#4a9e72;flex-shrink:0;animation:p 1.3s ease-in-out infinite}
+  @keyframes p{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+  .lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:#4a9e72}
+  .task{font-size:14px;font-weight:600;color:#F2F0EA;margin-bottom:4px;line-height:1.35;word-break:break-word}
+  .client{font-size:11px;color:#7a97b5;margin-bottom:18px}
+  #pip-ext-clock{font-size:38px;font-weight:700;color:#F2F0EA;letter-spacing:.04em;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:20px}
+  .stop{width:100%;background:rgba(217,89,106,.12);border:1px solid rgba(217,89,106,.35);border-radius:9px;color:#d9596a;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;padding:11px;letter-spacing:.02em;transition:background .2s}
+  .stop:hover{background:rgba(217,89,106,.25)}
+`;
+
+async function pipOpen(taskId) {
+  const t = allTasks.find(x => x.id === taskId);
+  const c = t?.clientId ? allClients.find(x => x.id === t.clientId) : null;
+
+  // — Try Document Picture-in-Picture (Chrome 116+) —
+  if (window.documentPictureInPicture) {
+    try {
+      // Close any existing one first
+      if (pipDocWindow) { try { pipDocWindow.close(); } catch(e){} pipDocWindow = null; }
+
+      pipDocWindow = await window.documentPictureInPicture.requestWindow({
+        width: 270, height: 230, disallowReturnToOpener: false
+      });
+
+      // Inject styles
+      const st = pipDocWindow.document.createElement('style');
+      st.textContent = PIP_CSS;
+      pipDocWindow.document.head.appendChild(st);
+
+      // Build content
+      pipDocWindow.document.body.innerHTML = `
+        <div>
+          <div class="ph"><span class="dot"></span><span class="lbl">Em execução</span></div>
+          <div class="task">${(t?.name||'—').replace(/</g,'&lt;')}</div>
+          <div class="client">${(c?.name||'').replace(/</g,'&lt;')}</div>
+          <div id="pip-ext-clock">00:00</div>
+        </div>
+        <button class="stop" id="pip-ext-stop">⏹&ensp;Parar contagem</button>
+      `;
+
+      // Stop button communicates back to main page
+      pipDocWindow.document.getElementById('pip-ext-stop').addEventListener('click', () => stopTimer());
+
+      // If user closes PiP window manually, just clear the reference (timer keeps running)
+      pipDocWindow.addEventListener('pagehide', () => { pipDocWindow = null; });
+
+      // Also show the in-page fallback widget as a subtle indicator
+      pipShowFallback(t, c);
+      return;
+    } catch(err) {
+      console.warn('Document PiP unavailable:', err.message);
+    }
+  }
+
+  // — Fallback: in-page floating widget —
+  pipShowFallback(t, c);
+}
+
+function pipClose() {
+  // Close Document PiP window
+  if (pipDocWindow) { try { pipDocWindow.close(); } catch(e){} pipDocWindow = null; }
+  // Hide fallback widget
+  const el = document.getElementById('pip-timer');
+  el.classList.add('hidden');
+  el.style.cssText = '';
+}
+
+function pipShowFallback(t, c) {
+  document.getElementById('pip-task-name').textContent   = t?.name  || '—';
+  document.getElementById('pip-client-name').textContent = c?.name  || '';
+  document.getElementById('pip-clock').textContent       = '00:00';
+  document.getElementById('pip-timer').classList.remove('hidden');
+}
+
+// Fallback widget: draggable
+(function() {
+  const pip = document.getElementById('pip-timer');
+  const handle = document.getElementById('pip-handle');
+  let drag = { on:false, ox:0, oy:0 };
+
+  handle.addEventListener('mousedown', e => {
+    if (e.target.id === 'pip-collapse') return;
+    drag.on = true;
+    const r = pip.getBoundingClientRect();
+    drag.ox = e.clientX - r.left; drag.oy = e.clientY - r.top;
+    pip.style.bottom = 'auto'; pip.style.right = 'auto';
+    pip.style.left = r.left + 'px'; pip.style.top = r.top + 'px';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!drag.on) return;
+    let x = Math.max(0, Math.min(window.innerWidth  - pip.offsetWidth,  e.clientX - drag.ox));
+    let y = Math.max(0, Math.min(window.innerHeight - pip.offsetHeight, e.clientY - drag.oy));
+    pip.style.left = x + 'px'; pip.style.top = y + 'px';
+  });
+  document.addEventListener('mouseup', () => { drag.on = false; });
+})();
+
+document.getElementById('pip-stop-btn').addEventListener('click', () => stopTimer());
+
+document.getElementById('pip-collapse').addEventListener('click', () => {
+  const els = document.getElementById('pip-timer').querySelectorAll('.pip-task,.pip-client,.pip-clock,.pip-stop-btn');
+  const collapsed = els[0].style.display === 'none';
+  els.forEach(el => el.style.display = collapsed ? '' : 'none');
+  document.getElementById('pip-collapse').textContent = collapsed ? '—' : '□';
 });
 
 // ════════════════════════════════════════════════════════
