@@ -229,6 +229,21 @@
     .progress-bar { height:3px; background:var(--border); border-radius:2px; margin-top:10px; overflow:hidden; }
     .progress-fill { height:100%; background:var(--ouro); border-radius:2px; transition:width .5s; }
 
+    /* ── CHURN ── */
+    .churn-section { margin-top:36px; border-top:1px solid var(--border); padding-top:28px; }
+    .churn-title { font-size:1rem; font-weight:700; color:var(--offwhite); margin-bottom:20px; letter-spacing:.02em; }
+    .churn-badge-active  { font-size:.72rem; color:var(--done);   background:rgba(74,158,114,.15);  padding:3px 10px; border-radius:4px; font-weight:600; }
+    .churn-badge-churned { font-size:.72rem; color:var(--urgent); background:rgba(217,89,106,.12); padding:3px 10px; border-radius:4px; font-weight:600; }
+    .tl-wrap { padding:4px 0 8px; }
+    .tl-row { display:flex; align-items:center; gap:10px; margin-bottom:7px; }
+    .tl-label { width:140px; font-size:.74rem; color:var(--text2); text-align:right; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .tl-track { flex:1; position:relative; height:18px; background:var(--surface2); border-radius:4px; overflow:hidden; }
+    .tl-bar   { position:absolute; height:100%; border-radius:4px; opacity:.9; transition:opacity .2s; }
+    .tl-bar:hover { opacity:1; }
+    .tl-dur   { width:44px; font-size:.7rem; color:var(--muted); flex-shrink:0; }
+    .churn-table th { padding:12px 22px; }
+    .churn-table td { padding:14px 22px !important; font-size:.86rem; }
+
     /* ── FINANCEIRO TAB ── */
     .fin-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
     .fin-header-title { font-family:'Inter',system-ui,sans-serif; font-size:1.35rem; font-weight:600; color:var(--offwhite); letter-spacing:.05em; }
@@ -331,6 +346,28 @@
     <div class="field" style="margin-top:15px">
       <label>Dia de Pagamento (do mês)</label>
       <input type="number" id="cm-day" placeholder="Ex: 5 = todo dia 5" min="1" max="31" />
+    </div>
+    <div class="field-row" style="margin-top:15px">
+      <div class="field" style="margin-bottom:0">
+        <label>Data de entrada</label>
+        <input type="month" id="cm-start" />
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Data de saída <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(churn)</span></label>
+        <input type="month" id="cm-churn" />
+      </div>
+    </div>
+    <div class="field" id="cm-reason-row" style="display:none;margin-top:12px">
+      <label>Motivo do churn</label>
+      <select id="cm-reason">
+        <option value="">— Selecione —</option>
+        <option value="price">Preço</option>
+        <option value="results">Resultado</option>
+        <option value="competition">Concorrência</option>
+        <option value="business_closed">Encerramento do negócio</option>
+        <option value="strategy">Mudança de estratégia</option>
+        <option value="other">Outro</option>
+      </select>
     </div>
     <input type="hidden" id="cm-id" />
     <div class="modal-actions">
@@ -715,7 +752,51 @@
       <div class="fin-card fc-late"><div class="label">Em atraso</div><div class="value" id="fin-late">—</div></div>
     </div>
 
+    <!-- ── MRR CHART ── -->
+    <div class="chart-card" style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <h3>MRR ao longo do tempo</h3>
+        <span id="mrr-chart-sub" style="font-size:.74rem;color:var(--muted)"></span>
+      </div>
+      <div class="chart-wrap" style="position:relative;min-height:120px">
+        <canvas id="chart-mrr"></canvas>
+        <div id="mrr-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase">Nenhum dado de contrato cadastrado</div>
+      </div>
+    </div>
+
     <div class="client-cards-grid" id="client-cards-grid"></div>
+
+    <!-- ── CHURN SECTION ── -->
+    <div class="churn-section">
+      <div class="churn-title">Retenção &amp; Churn</div>
+      <div class="fin-summary" style="margin-bottom:24px">
+        <div class="fin-card"><div class="label">Ativos</div><div class="value" id="ch-active" style="color:var(--done)">—</div></div>
+        <div class="fin-card"><div class="label">Perdidos</div><div class="value" id="ch-churned" style="color:var(--urgent)">—</div></div>
+        <div class="fin-card"><div class="label">Churn Rate</div><div class="value" id="ch-rate">—</div></div>
+        <div class="fin-card"><div class="label">MRR Perdido</div><div class="value" id="ch-lost-mrr" style="color:var(--urgent)">—</div></div>
+        <div class="fin-card"><div class="label">LTV Médio</div><div class="value" id="ch-ltv-avg" style="color:var(--ouro)">—</div></div>
+        <div class="fin-card"><div class="label">LTV Total</div><div class="value" id="ch-ltv-total" style="color:var(--ouro)">—</div></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:20px">
+        <h3>Linha do tempo de clientes</h3>
+        <p style="font-size:.72rem;color:var(--muted);margin-bottom:16px">🟢 Ativo &nbsp;🔴 Churned — defina a data de entrada nos clientes para visualizar</p>
+        <div class="tl-wrap" id="churn-timeline"></div>
+      </div>
+      <div class="section-wrapper">
+        <table class="task-table churn-table">
+          <thead><tr>
+            <th style="width:22%">Cliente</th>
+            <th style="width:12%">Entrada</th>
+            <th style="width:12%">Saída</th>
+            <th style="width:10%">Duração</th>
+            <th style="width:13%">LTV</th>
+            <th style="width:16%">Motivo</th>
+            <th style="width:10%">Status</th>
+          </tr></thead>
+          <tbody id="churn-tbody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- ── TAB 4: GRÁFICOS ── -->
@@ -1170,12 +1251,16 @@ function openClientModal(clientId) {
   if (clientId) {
     const c = allClients.find(x => x.id === clientId);
     if (!c) return;
-    document.getElementById('cm-title').textContent = 'Editar Cliente';
+    document.getElementById('cm-title').textContent  = 'Editar Cliente';
     document.getElementById('cm-name').value    = c.name;
     document.getElementById('cm-value').value   = c.contractValue;
     document.getElementById('cm-charges').value = c.remainingCharges;
     document.getElementById('cm-day').value     = c.paymentDay;
     document.getElementById('cm-id').value      = clientId;
+    document.getElementById('cm-start').value   = c.startDate ? new Date(c.startDate).toISOString().slice(0,7) : '';
+    document.getElementById('cm-churn').value   = c.churnDate ? new Date(c.churnDate).toISOString().slice(0,7) : '';
+    document.getElementById('cm-reason').value  = c.churnReason || '';
+    document.getElementById('cm-reason-row').style.display = c.churnDate ? '' : 'none';
   } else {
     document.getElementById('cm-title').textContent = 'Novo Cliente';
     document.getElementById('cm-name').value    = '';
@@ -1183,6 +1268,10 @@ function openClientModal(clientId) {
     document.getElementById('cm-charges').value = '';
     document.getElementById('cm-day').value     = '';
     document.getElementById('cm-id').value      = '';
+    document.getElementById('cm-start').value   = '';
+    document.getElementById('cm-churn').value   = '';
+    document.getElementById('cm-reason').value  = '';
+    document.getElementById('cm-reason-row').style.display = 'none';
   }
   document.getElementById('client-modal').classList.remove('hidden');
   setTimeout(() => document.getElementById('cm-name').focus(), 50);
@@ -1198,13 +1287,27 @@ function saveClient() {
   const remainingCharges= parseInt(document.getElementById('cm-charges').value)   || 0;
   const paymentDay      = parseInt(document.getElementById('cm-day').value)        || 0;
   const id              = document.getElementById('cm-id').value;
+  const startRaw        = document.getElementById('cm-start').value;
+  const churnRaw        = document.getElementById('cm-churn').value;
+  const startDate       = startRaw  ? new Date(startRaw  + '-01').getTime() : null;
+  const churnDate       = churnRaw  ? new Date(churnRaw  + '-01').getTime() : null;
+  const churnReason     = churnDate ? (document.getElementById('cm-reason').value || null) : null;
   if (!name) { document.getElementById('cm-name').focus(); return; }
 
   if (id) {
     const idx = allClients.findIndex(c => c.id === id);
-    if (idx >= 0) Object.assign(allClients[idx], { name, contractValue, remainingCharges, paymentDay });
+    if (idx >= 0) {
+      const hadChurn = allClients[idx].churnDate;
+      Object.assign(allClients[idx], { name, contractValue, remainingCharges, paymentDay, startDate, churnDate, churnReason });
+      // New churn — archive all tasks for this client
+      if (!hadChurn && churnDate) {
+        let changed = false;
+        allTasks.forEach(t => { if (t.clientId === id && !t.archived) { t.archived = true; changed = true; } });
+        if (changed) saveTasks();
+      }
+    }
   } else {
-    allClients.push({ id:uid(), name, contractValue, remainingCharges, paymentDay });
+    allClients.push({ id:uid(), name, contractValue, remainingCharges, paymentDay, startDate, churnDate, churnReason });
   }
   saveClients();
   closeClientModal();
@@ -1218,6 +1321,10 @@ document.getElementById('cm-cancel').addEventListener('click', closeClientModal)
 document.getElementById('client-modal').addEventListener('click', e => { if (e.target === document.getElementById('client-modal')) closeClientModal(); });
 document.getElementById('cm-save').addEventListener('click', saveClient);
 document.getElementById('cm-name').addEventListener('keydown', e => { if (e.key==='Enter') saveClient(); });
+document.getElementById('cm-churn').addEventListener('change', e => {
+  document.getElementById('cm-reason-row').style.display = e.target.value ? '' : 'none';
+  if (!e.target.value) document.getElementById('cm-reason').value = '';
+});
 
 // ════════════════════════════════════════════════════════
 //  DELETE CONFIRM
@@ -1509,7 +1616,7 @@ document.querySelectorAll('[data-sort]').forEach(btn => {
 function buildClientFilters() {
   const wrap = document.getElementById('client-filters');
   wrap.innerHTML = `<button class="filter-btn${filterClient==='all'?' active':''}" data-c="all">Todos</button>`;
-  for (const c of allClients) {
+  for (const c of allClients.filter(c => !c.churnDate)) {
     wrap.innerHTML += `<button class="filter-btn${filterClient===c.id?' active':''}" data-c="${c.id}">${c.name}</button>`;
   }
 }
@@ -1750,6 +1857,195 @@ function renderPessoal() {
 }
 
 // ════════════════════════════════════════════════════════
+//  MRR HISTORY CHART
+// ════════════════════════════════════════════════════════
+function getMRRHistory(numMonths) {
+  const now = new Date();
+  const labels = [], data = [];
+  for (let i = numMonths - 1; i >= 0; i--) {
+    const d          = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthStart = d.getTime();
+    const monthEnd   = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999).getTime();
+    labels.push(formatMonth(getMonthKey(d)));
+    const mrr = allClients
+      .filter(c => (c.contractValue||0) > 0 && c.startDate)
+      .filter(c => c.startDate <= monthEnd && (!c.churnDate || c.churnDate > monthStart))
+      .reduce((s, c) => s + (c.contractValue || 0), 0);
+    data.push(mrr);
+  }
+  return { labels, data };
+}
+
+function renderMRRChart() {
+  destroyChart('mrr');
+  const canvas = document.getElementById('chart-mrr');
+  if (!canvas) return;
+  const { labels, data } = getMRRHistory(12);
+  const hasData = data.some(v => v > 0);
+  document.getElementById('mrr-empty').style.display = hasData ? 'none' : 'flex';
+  if (!hasData) return;
+
+  const current = data[data.length - 1] || 0;
+  const prev    = data[data.length - 2] || 0;
+  const diff    = current - prev;
+  const pct     = prev > 0 ? Math.abs(Math.round((diff / prev) * 100)) : 0;
+  const arrow   = diff > 0 ? '▲' : diff < 0 ? '▼' : '';
+  const color   = diff > 0 ? 'var(--done)' : diff < 0 ? 'var(--urgent)' : 'var(--muted)';
+  document.getElementById('mrr-chart-sub').innerHTML =
+    `Atual: <strong style="color:var(--ouro)">${fmtCurrency(current)}</strong>` +
+    (diff !== 0 ? `&ensp;<span style="color:${color};font-weight:600">${arrow} ${pct}%</span> <span style="color:var(--muted)">vs mês anterior</span>` : '');
+
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, 0, 280);
+  grad.addColorStop(0,   'rgba(199,169,119,.38)');
+  grad.addColorStop(0.65,'rgba(199,169,119,.07)');
+  grad.addColorStop(1,   'rgba(199,169,119,0)');
+
+  charts['mrr'] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'MRR',
+        data,
+        borderColor: '#C7A977',
+        borderWidth: 2.5,
+        backgroundColor: grad,
+        fill: true,
+        tension: 0.42,
+        pointRadius: 5,
+        pointBackgroundColor: '#C7A977',
+        pointBorderColor: '#0F1C2E',
+        pointBorderWidth: 2,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: '#e0c48a',
+        pointHoverBorderColor: '#0F1C2E',
+        pointHoverBorderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#162437',
+          borderColor: '#273d57',
+          borderWidth: 1,
+          titleColor: '#7a97b5',
+          bodyColor: '#F2F0EA',
+          padding: 14,
+          callbacks: {
+            label: ctx => '  MRR: ' + fmtCurrency(ctx.parsed.y)
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(39,61,87,.35)' },
+          ticks: { color: '#7a97b5', font: { size: 11 } }
+        },
+        y: {
+          grid: { color: 'rgba(39,61,87,.35)' },
+          ticks: {
+            color: '#7a97b5',
+            font: { size: 11 },
+            callback: v => 'R$' + (v >= 1000 ? (v/1000).toFixed(0)+'k' : v)
+          },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════════════════════
+//  CHURN HELPERS
+// ════════════════════════════════════════════════════════
+const CHURN_LABELS = {
+  price:'Preço', results:'Resultado', competition:'Concorrência',
+  business_closed:'Encerramento', strategy:'Mudança de estratégia', other:'Outro'
+};
+
+function calcLTV(c) {
+  if (!c.contractValue || !c.startDate) return 0;
+  const end    = c.churnDate || Date.now();
+  const months = Math.max(0, (end - c.startDate) / (DAY * 30.44));
+  return Math.round(months * c.contractValue);
+}
+
+function renderChurn() {
+  const now    = Date.now();
+  const active  = allClients.filter(c => !c.churnDate);
+  const churned = allClients.filter(c =>  c.churnDate);
+  const total   = allClients.length;
+
+  const churnRate = total ? Math.round((churned.length / total) * 100) : 0;
+  const lostMrr   = churned.reduce((s,c) => s + (c.contractValue||0), 0);
+  const ltvs      = allClients.map(calcLTV).filter(v => v > 0);
+  const ltvAvg    = ltvs.length ? Math.round(ltvs.reduce((a,b)=>a+b,0) / ltvs.length) : 0;
+  const ltvTotal  = ltvs.reduce((a,b)=>a+b, 0);
+
+  document.getElementById('ch-active').textContent    = active.length;
+  document.getElementById('ch-churned').textContent   = churned.length;
+  document.getElementById('ch-rate').textContent      = churnRate + '%';
+  document.getElementById('ch-lost-mrr').textContent  = fmtCurrency(lostMrr);
+  document.getElementById('ch-ltv-avg').textContent   = fmtCurrency(ltvAvg);
+  document.getElementById('ch-ltv-total').textContent = fmtCurrency(ltvTotal);
+
+  // Timeline
+  const tlWrap = document.getElementById('churn-timeline');
+  const starts = allClients.map(c => c.startDate).filter(Boolean);
+  if (!starts.length) {
+    tlWrap.innerHTML = '<p style="color:var(--muted);font-size:.8rem">Nenhum cliente com data de entrada cadastrada.</p>';
+  } else {
+    const minDate = Math.min(...starts);
+    const range   = Math.max(now - minDate, DAY * 30);
+    tlWrap.innerHTML = [...allClients]
+      .filter(c => c.startDate)
+      .sort((a,b) => a.startDate - b.startDate)
+      .map(c => {
+        const end   = c.churnDate || now;
+        const left  = ((c.startDate - minDate) / range) * 100;
+        const width = Math.max(((end - c.startDate) / range) * 100, 1);
+        const color = c.churnDate ? 'var(--urgent)' : 'var(--done)';
+        const months= Math.max(0, Math.round((end - c.startDate) / (DAY * 30.44)));
+        return `<div class="tl-row">
+          <div class="tl-label" title="${c.name}">${c.name}</div>
+          <div class="tl-track">
+            <div class="tl-bar" style="left:${left.toFixed(1)}%;width:${width.toFixed(1)}%;background:${color}"
+                 title="${c.name} · ${months}m · ${c.churnDate?'Churned':'Ativo'}"></div>
+          </div>
+          <div class="tl-dur">${months}m</div>
+        </div>`;
+      }).join('');
+  }
+
+  // Tabela
+  const tbody  = document.getElementById('churn-tbody');
+  const sorted = [...allClients].sort((a,b) => (b.startDate||0) - (a.startDate||0));
+  tbody.innerHTML = sorted.map(c => {
+    const fmtM  = ts => ts ? new Date(ts).toLocaleDateString('pt-BR',{month:'2-digit',year:'numeric'}) : '—';
+    const months= c.startDate ? Math.max(0,Math.round(((c.churnDate||now)-c.startDate)/(DAY*30.44))) : '—';
+    const ltv   = calcLTV(c);
+    const reason= c.churnReason ? (CHURN_LABELS[c.churnReason]||c.churnReason) : '—';
+    const badge = c.churnDate
+      ? `<span class="churn-badge-churned">Churned</span>`
+      : `<span class="churn-badge-active">Ativo</span>`;
+    return `<tr>
+      <td style="font-weight:500">${c.name}</td>
+      <td style="color:var(--muted);font-size:.8rem">${fmtM(c.startDate)}</td>
+      <td style="color:var(--muted);font-size:.8rem">${fmtM(c.churnDate)}</td>
+      <td style="color:var(--muted);font-size:.8rem">${months!=='—'?months+'m':'—'}</td>
+      <td style="color:var(--ouro)">${ltv>0?fmtCurrency(ltv):'—'}</td>
+      <td style="color:var(--muted);font-size:.8rem">${reason}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
 //  TAB 5: FINANCEIRO
 // ════════════════════════════════════════════════════════
 function renderFinanceiro() {
@@ -1757,10 +2053,11 @@ function renderFinanceiro() {
   const payments = getPayments();
   const now = new Date();
 
-  // Summary
-  const mrr      = allClients.reduce((s,c)=>s+(c.contractValue||0),0);
+  // Summary — MRR only counts active (non-churned) clients
+  const activeForMrr = allClients.filter(c => !c.churnDate);
+  const mrr      = activeForMrr.reduce((s,c)=>s+(c.contractValue||0),0);
   let recv=0, pend=0, late=0;
-  for (const c of allClients) {
+  for (const c of activeForMrr) {
     if (!c.contractValue) continue;
     const p = payments[`${c.id}_${monthKey}`];
     if (!p) continue;
@@ -1774,7 +2071,7 @@ function renderFinanceiro() {
   document.getElementById('fin-pend').textContent = fmtCurrency(pend);
   document.getElementById('fin-late').textContent = fmtCurrency(late);
 
-  const activeClients = allClients.filter(c=>c.contractValue>0).length;
+  const activeClients = activeForMrr.filter(c=>c.contractValue>0).length;
   document.getElementById('fin-meta').textContent =
     `${allClients.length} clientes · ${activeClients} ativos · ${formatMonth(monthKey)}`;
 
@@ -1785,10 +2082,10 @@ function renderFinanceiro() {
     months.push(getMonthKey(d));
   }
 
-  // Client cards
+  // Client cards — only active (non-churned)
   const grid = document.getElementById('client-cards-grid');
   grid.innerHTML = '';
-  for (const c of allClients) {
+  for (const c of allClients.filter(c => !c.churnDate)) {
     const pills = months.map(mk => {
       const p   = payments[`${c.id}_${mk}`];
       const st  = p?.status || (mk > monthKey ? 'future' : null);
@@ -1847,6 +2144,9 @@ function renderFinanceiro() {
       });
     });
   });
+
+  renderMRRChart();
+  renderChurn();
 }
 
 // ════════════════════════════════════════════════════════
