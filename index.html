@@ -1863,11 +1863,12 @@ function sortTasks(tasks, now) {
 function renderClientes() {
   const now = Date.now();
   const groups = {};
-  for (const c of allClients) groups[c.id] = { clientId:c.id, tasks:[] };
+  for (const c of allClients.filter(c => !c.churnDate)) groups[c.id] = { clientId:c.id, tasks:[] };
 
   allTasks.forEach(t => {
     if (t.archived) return;                          // ignora arquivadas
     if ((t.category||'client') !== 'client') return; // só tarefas de clientes nesta aba
+    if (allClients.find(c => c.id === t.clientId)?.churnDate) return; // ignora tarefas de clientes churned
     if (!groups[t.clientId]) groups[t.clientId] = { clientId:t.clientId, tasks:[] };
     const cn = clientName(t.clientId).toLowerCase();
     const pass = (
